@@ -58,10 +58,20 @@ const Commit = styled.li`
 class GitFlow extends Component {
 
     renderBranch = (branch, commits) => {
+        const { featureBranch } = branch;
+
+        const mergeButton = featureBranch ?
+            (
+                <Button
+                    onClick={this.props.onMerge.bind(this, branch.id, undefined)}
+                >Merge</Button>
+            )
+            : null;
         return (
             <BranchElm key={'branch-' + branch.id}>
                 <BranchName>{branch.name}</BranchName>
                 <Button onClick={this.props.onCommit.bind(this, branch.id, 0)}>commit</Button>
+                {mergeButton}
                 <Commits>
                     {
                         commits.map((commit, idx) => {
