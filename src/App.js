@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import styled from "styled-components";
 import GitFlow from "./gitflow";
 import shortid from "shortid";
@@ -6,7 +6,6 @@ import shortid from "shortid";
 const DEVELOP = 'develop';
 const MASTER = 'master';
 
-const offsetReducer = (acc, curr) => (1 + acc + curr.offset || 0);
 const masterID = shortid.generate();
 const developID = shortid.generate();
 
@@ -55,7 +54,7 @@ class App extends Component {
     }
 
     handleCommit = (branchID, mergeGridIndex = 0) => {
-        let { commits } = this.state.project;
+        let {commits} = this.state.project;
         const branchCommits = commits.filter(c => c.branch === branchID);
         const lastCommit = branchCommits[branchCommits.length - 1];
         commits.push({
@@ -69,7 +68,7 @@ class App extends Component {
     };
 
     handleNewFeature = () => {
-        let { branches, commits } = this.state.project;
+        let {branches, commits} = this.state.project;
         let featureBranches = branches.filter(b => !!b.featureBranch);
         let featureBranchName = 'feature ' + ((featureBranches || []).length + 1);
         let developCommits = commits.filter(c => c.branch === developID);
@@ -80,6 +79,7 @@ class App extends Component {
             name: featureBranchName,
             featureBranch: true,
             canCommit: true,
+            color: '#64B5F6'
         };
         let newCommit = {
             id: shortid.generate(),
@@ -95,7 +95,7 @@ class App extends Component {
     };
 
     handleNewRelease = () => {
-        let { branches, commits } = this.state.project;
+        let {branches, commits} = this.state.project;
         let releaseBranches = branches.filter(b => !!b.releaseBranch);
         let releaseBranchName = 'release ' + ((releaseBranches || []).length + 1);
         let developCommits = commits.filter(c => c.branch === developID);
@@ -106,6 +106,7 @@ class App extends Component {
             name: releaseBranchName,
             releaseBranch: true,
             canCommit: true,
+            color: '#81C784'
         };
         let newCommit = {
             id: shortid.generate(),
@@ -121,7 +122,7 @@ class App extends Component {
     };
 
     handleRelease = (sourceBranchID) => {
-        const { branches, commits } = this.state.project;
+        const {branches, commits} = this.state.project;
         const sourceBranch = branches.find(b => b.id === sourceBranchID);
         const sourceCommits = commits.filter(c => c.branch === sourceBranchID);
 
@@ -146,12 +147,12 @@ class App extends Component {
         commits.push(masterMergeCommit, developMergeCommit);
         sourceBranch.merged = true;
 
-        this.setState({ branches, commits });
+        this.setState({branches, commits});
 
     };
 
     handleMerge = (sourceBranchID, targetBranchID = developID) => {
-        const { branches, commits } = this.state.project;
+        const {branches, commits} = this.state.project;
 
         const sourceBranch = branches.find(b => b.id === sourceBranchID);
         const sourceCommits = commits.filter(c => c.branch === sourceBranchID);
