@@ -8,19 +8,21 @@ const GitFlowElm = styled.div`
 `;
 
 const ProjectElm = styled.div`
+    position: relative;
     display: grid;
-    grid-template-columns: ${p => `repeat(${p.count || 2}, 90px)`};
+    grid-template-columns: 1fr;
+    grid-template-rows: 90px 1fr;
     margin-top: 20px;
-
-    &:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
 `;
 
-const BranchElm = styled.div`
+const GridColumn = styled.div`
     position: relative;
+    display: grid;
+    grid-template-columns: ${p => `repeat(${p.count || 2}, 90px)`};
+`;
+
+
+const BranchHeader = styled.div`
     max-width: 90px;
     padding: 5px;
     background-color: #fafafa;
@@ -53,6 +55,7 @@ const Commits = styled.ol`
     margin-top: 20px;
     min-height: 500px;
     filter: url('#goo');
+    z-index: 20;
     &:before {
         position: absolute;
         display: block;
@@ -78,8 +81,17 @@ const Commit = styled.li`
     border: 2px solid #333;
     animation: ${fallDownAnimation} cubic-bezier(0.770, 0.000, 0.175, 1.000) 1s;
     animation-fill-mode: forwards;
+    z-index: 20;
 `;
 
+const Connections = styled.svg`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+`;
 
 class GitFlow extends Component {
 
@@ -91,86 +103,155 @@ class GitFlow extends Component {
         )
     };
 
-    renderDevelopBranchActions = (branch) => {
+    renderDevelopBranchHeader = (branch) => {
         return (
-            <BranchActions
-                count={3}
-            >
-                <ButtonIcon onClick={this.props.onNewRelease}>R</ButtonIcon>
-                {this.renderCommitButton(branch)}
-                <ButtonIcon onClick={this.props.onNewFeature}>F</ButtonIcon>
-            </BranchActions>
+            <BranchHeader>
+                <BranchName>{branch.name}</BranchName>
+                <BranchActions
+                    count={3}
+                >
+                    <ButtonIcon onClick={this.props.onNewRelease}>R</ButtonIcon>
+                    {this.renderCommitButton(branch)}
+                    <ButtonIcon onClick={this.props.onNewFeature}>F</ButtonIcon>
+                </BranchActions>
+            </BranchHeader>
         )
     };
 
-    renderFeatureBranchActions = (branch) => {
+    renderFeatureBranchHeader = (branch) => {
         return (
-            <BranchActions
-                count={2}
-            >
-                {this.renderCommitButton(branch)}
-                <ButtonIcon
-                    onClick={this.props.onMerge.bind(this, branch.id, undefined)}
-                >M</ButtonIcon>
-            </BranchActions>
-        )
-    };
-
-    renderReleaseBranchActions = (branch) => {
-        return (
-            <BranchActions
-                count={2}
-            >
-                {this.renderCommitButton(branch)}
-                <ButtonIcon
-                    onClick={this.props.onRelease.bind(this, branch.id, undefined)}
-                >R</ButtonIcon>
-            </BranchActions>
-        )
-    };
-
-    renderMasterBranchActions = (branch) => {
-        return (
-            <BranchActions/>
-        )
-    };
-
-    renderBranch = (branch) => {
-        const {commits} = this.props.project;
-        const branchCommits = commits.filter(c => c.branch === branch.id);
-        let branchActionsElm = null;
-        if (branch.name === 'master') {
-            branchActionsElm = this.renderMasterBranchActions(branch);
-        } else if (branch.name === 'develop') {
-            branchActionsElm = this.renderDevelopBranchActions(branch);
-        } else if (branch.featureBranch) {
-            branchActionsElm = this.renderFeatureBranchActions(branch);
-        } else if (branch.releaseBranch) {
-            branchActionsElm = this.renderReleaseBranchActions(branch);
-        }
-
-        return (
-            <BranchElm
-                key={'branch-' + branch.id}
+            <BranchHeader
+                key={branch.id}
             >
                 <BranchName>{branch.name}</BranchName>
-                {branchActionsElm}
-                <Commits
-                    color={branch.color}
+                <BranchActions
+                    count={2}
                 >
-                    {
-                        branchCommits.map((commit) => {
-                            return <Commit
-                                key={'commit-' + commit.id}
-                                color={branch.color}
-                                top={commit.gridIndex - 1}
-                            />
-                        })
-                    }
-                </Commits>
-            </BranchElm>
+                    {this.renderCommitButton(branch)}
+                    <ButtonIcon
+                        onClick={this.props.onMerge.bind(this, branch.id, undefined)}
+                    >M</ButtonIcon>
+                </BranchActions>
+            </BranchHeader>
         )
-    }
+    };
+
+    renderReleaseBranchHeader = (branch) => {
+        return (
+            <BranchHeader
+                key={branch.id}
+            >
+                <BranchName>{branch.name}</BranchName>
+                <BranchActions
+                    count={2}
+                >
+                    {this.renderCommitButton(branch)}
+                    <ButtonIcon
+                        onClick={this.props.onRelease.bind(this, branch.id, undefined)}
+                    >R</ButtonIcon>
+                </BranchActions>
+            </BranchHeader>
+        )
+    };
+
+    renderMasterBranchHeader = (branch) => {
+        return (
+            <BranchHeader>
+                <BranchName>{branch.name}</BranchName>
+                <BranchActions/>
+            </BranchHeader>
+        )
+    };
+
+    renderBranchHeaders = (param) => {
+        const {
+            masterBranch,
+            developBranch,
+            releaseBranches,
+            featureBranches,
+            noOfBranches
+        } = param;
+        return (
+            <GridColumn
+                count={noOfBranches}
+            >
+                {
+                    this.renderMasterBranchHeader(masterBranch)
+                }
+                {
+                    releaseBranches.map(b => this.renderReleaseBranchHeader(b))
+                }
+                {
+                    this.renderDevelopBranchHeader(developBranch)
+                }
+                {
+                    featureBranches.map(b => this.renderFeatureBranchHeader(b))
+                }
+            </GridColumn>
+        )
+    };
+
+    renderBranchCommits = (param) => {
+        const {
+            masterBranch,
+            developBranch,
+            releaseBranches,
+            featureBranches,
+            noOfBranches
+        } = param;
+        return (
+            <GridColumn
+                count={noOfBranches}
+            >
+                {this.renderBranchCommit(masterBranch)}
+                {
+                    releaseBranches.map((branch) => {
+                        return this.renderBranchCommit(branch)
+                    })
+                }
+                {this.renderBranchCommit(developBranch)}
+                {
+                    featureBranches.map((branch) => {
+                        return this.renderBranchCommit(branch)
+                    })
+                }
+                {this.renderConnections()}
+            </GridColumn>
+        )
+    };
+
+    renderBranchCommit = (branch) => {
+        const {commits} = this.props.project;
+        const branchCommits = commits.filter(c => c.branch === branch.id);
+        return (
+            <Commits
+                color={branch.color}
+                key={'branch-' + branch.id}
+            >
+                {
+                    branchCommits.map((commit) => {
+                        return <Commit
+                            innerRef={(elm) => {
+                                console.log(elm && elm.getBoundingClientRect())
+                            }}
+                            key={'commit-' + commit.id}
+                            color={branch.color}
+                            top={commit.gridIndex - 1}
+                        />
+                    })
+                }
+            </Commits>
+        )
+    };
+
+    renderConnections = () => {
+        return (
+            <Connections>
+
+                <path d="M0,0 C20,0 222,255 397,262" fill={'none'} stroke={'#333'} strokeWidth={2}/>
+            </Connections>
+        )
+    };
 
     render() {
 
@@ -181,23 +262,18 @@ class GitFlow extends Component {
         const releaseBranches = branches.filter(b => b.releaseBranch);
         const featureBranches = branches.filter(b => b.featureBranch);
         const noOfBranches = 2 + releaseBranches.length + featureBranches.length;
+        const param = {
+            masterBranch,
+            developBranch,
+            featureBranches,
+            releaseBranches,
+            noOfBranches
+        };
         return (
             <GitFlowElm>
-                <ProjectElm
-                    count={noOfBranches}
-                >
-                    {this.renderBranch(masterBranch)}
-                    {
-                        releaseBranches.map((branch) => {
-                            return this.renderBranch(branch)
-                        })
-                    }
-                    {this.renderBranch(developBranch)}
-                    {
-                        featureBranches.map((branch) => {
-                            return this.renderBranch(branch)
-                        })
-                    }
+                <ProjectElm>
+                    {this.renderBranchHeaders(param)}
+                    {this.renderBranchCommits(param)}
                 </ProjectElm>
                 <GoeyFilter/>
             </GitFlowElm>
