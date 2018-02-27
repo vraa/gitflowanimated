@@ -95,6 +95,7 @@ class GitFlow extends Component {
             <GitFlowElm>
                 <FlowName>Git Flow</FlowName>
                 <Button onClick={this.props.onNewFeature}>New Feature</Button>
+                <Button onClick={this.props.onNewRelease}>New Release</Button>
                 <ProjectElm>
                     {
                         project.branches.map((branch, idx) => {

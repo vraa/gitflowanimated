@@ -72,8 +72,7 @@ class App extends Component {
         let { branches, commits } = this.state.project;
         let featureBranches = branches.filter(b => !!b.featureBranch);
         let featureBranchName = 'feature ' + ((featureBranches || []).length + 1);
-        let developBranch = branches.find(b => b.name === DEVELOP);
-        let developCommits = commits.filter(c => c.branch === developBranch.id);
+        let developCommits = commits.filter(c => c.branch === developID);
         const lastDevelopCommit = developCommits[developCommits.length - 1];
         let featutreOffset = lastDevelopCommit.gridIndex + 1;
         let newBranch = {
@@ -87,14 +86,38 @@ class App extends Component {
             branch: newBranch.id,
             gridIndex: featutreOffset
         };
-
         commits.push(newCommit);
         branches.push(newBranch);
-
         this.setState({
             branches,
             commits
-        })
+        });
+    };
+
+    handleNewRelease = () => {
+        let { branches, commits } = this.state.project;
+        let releaseBranches = branches.filter(b => !!b.releaseBranch);
+        let releaseBranchName = 'release ' + ((releaseBranches || []).length + 1);
+        let developCommits = commits.filter(c => c.branch === developID);
+        const lastDevelopCommit = developCommits[developCommits.length - 1];
+        let releaseOffset = lastDevelopCommit.gridIndex + 1;
+        let newBranch = {
+            id: shortid.generate(),
+            name: releaseBranchName,
+            releaseBranch: true,
+            canCommit: true,
+        };
+        let newCommit = {
+            id: shortid.generate(),
+            branch: newBranch.id,
+            gridIndex: releaseOffset
+        };
+        commits.push(newCommit);
+        branches.push(newBranch);
+        this.setState({
+            branches,
+            commits
+        });
     };
 
     handleMerge = (sourceBranchID, targetBranchID = developID) => {
@@ -130,6 +153,7 @@ class App extends Component {
                     onMerge={this.handleMerge}
                     onCommit={this.handleCommit}
                     onNewFeature={this.handleNewFeature}
+                    onNewRelease={this.handleNewRelease}
                 />
             </AppElm>
         );
