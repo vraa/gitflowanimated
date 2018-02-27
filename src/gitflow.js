@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import { FlowName, Button } from "./global-styles";
+import { Button, ButtonIcon } from "./global-styles";
 import { release } from "os";
 
 const GitFlowElm = styled.div`
 `;
 
 const ProjectElm = styled.div`
+    margin-top: 20px;
+
     &:after {
         content: "";
         display: table;
@@ -17,20 +19,36 @@ const ProjectElm = styled.div`
 const BranchElm = styled.div`
     position: relative;
     float: left;
-    width: 75px;
-    margin-right: 10px;
+    width: 90px;
+    padding: 5px;
+    background-color: #fafafa;
     text-align: center;
     z-index: 1;
+
+    &:nth-child(even) {
+        background-color: #f0f0f0;
+    }
+`;
+
+const BranchActions = styled.div`
+    display: grid;
+    grid-template-columns: ${p => `repeat(${p.count || 1}, 1fr)`};
+    margin-top: 10px;
+    justify-items: center;
+    height: 24px;
 `;
 
 const BranchName = styled.h4`
     position: relative;
-    font-size: .8rem;
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing:1.5pt;
+    margin-top: 10px;
 `;
 
 const Commits = styled.ol`
     position: relative;
-
+    margin-top: 20px;
     &:before {
         position: absolute;
         display: block;
@@ -56,31 +74,80 @@ const Commit = styled.li`
     border: 1px solid #000;
 `;
 
+
 class GitFlow extends Component {
+
+    renderCommitButton = (branch) => {
+        return (
+            <ButtonIcon
+                onClick={this.props.onCommit.bind(this, branch.id, 0)}
+            >+</ButtonIcon>
+        )
+    };
+
+    renderDevelopBranchActions = (branch) => {
+        return (
+            <BranchActions
+                count={3}
+            >
+                <ButtonIcon onClick={this.props.onNewRelease}>R</ButtonIcon>
+                {this.renderCommitButton(branch)}
+                <ButtonIcon onClick={this.props.onNewFeature}>F</ButtonIcon>
+            </BranchActions>
+        )
+    };
+
+    renderFeatureBranchActions = (branch) => {
+        return (
+            <BranchActions
+                count={2}
+            >
+                {this.renderCommitButton(branch)}
+                <ButtonIcon
+                    onClick={this.props.onMerge.bind(this, branch.id)}
+                >M</ButtonIcon>
+            </BranchActions>
+        )
+    };
+
+    renderReleaseBranchActions = (branch) => {
+        return (
+            <BranchActions
+                count={2}
+            >
+                {this.renderCommitButton(branch)}
+                <ButtonIcon
+                    onClick={this.props.onRelease.bind(this, branch.id, undefined)}
+                >R</ButtonIcon>
+            </BranchActions>
+        )
+    };
+
+    renderMasterBranchActions = (branch) => {
+        return (
+            <BranchActions/>
+        )
+    };
 
     renderBranch = (branch) => {
         const { commits } = this.props.project;
-        const { releaseBranch, featureBranch, merged } = branch;
+        const { releaseBranch, featureBranch, merged, canCommit } = branch;
         const branchCommits = commits.filter(c => c.branch === branch.id);
-        const mergeButton = featureBranch && !merged ?
-            (
-                <Button
-                    onClick={this.props.onMerge.bind(this, branch.id)}
-                >Merge</Button>
-            )
-            : null;
-        const releaseButton = releaseBranch && !merged ?
-            (
-                <Button
-                    onClick={this.props.onRelease.bind(this, branch.id, undefined)}
-                >Release</Button>
-            )
-            : null;
+        let branchActionsElm = null;
+        if (branch.name === 'master') {
+            branchActionsElm = this.renderMasterBranchActions(branch);
+        } else if (branch.name === 'develop') {
+            branchActionsElm = this.renderDevelopBranchActions(branch);
+        } else if (branch.featureBranch) {
+            branchActionsElm = this.renderFeatureBranchActions(branch);
+        } else if (branch.releaseBranch) {
+            branchActionsElm = this.renderReleaseBranchActions(branch);
+        }
+
         return (
             <BranchElm key={'branch-' + branch.id}>
                 <BranchName>{branch.name}</BranchName>
-                <Button onClick={this.props.onCommit.bind(this, branch.id, 0)}>commit</Button>
-                {mergeButton || releaseButton}
+                {branchActionsElm}
                 <Commits>
                     {
                         branchCommits.map((commit, idx) => {
@@ -107,9 +174,6 @@ class GitFlow extends Component {
 
         return (
             <GitFlowElm>
-                <FlowName>Git Flow</FlowName>
-                <Button onClick={this.props.onNewFeature}>New Feature</Button>
-                <Button onClick={this.props.onNewRelease}>New Release</Button>
                 <ProjectElm>
                     {this.renderBranch(masterBranch)}
                     {
