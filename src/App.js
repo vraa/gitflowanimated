@@ -120,6 +120,36 @@ class App extends Component {
         });
     };
 
+    handleRelease = (sourceBranchID) => {
+        const { branches, commits } = this.state.project;
+        const sourceBranch = branches.find(b => b.id === sourceBranchID);
+        const sourceCommits = commits.filter(c => c.branch === sourceBranchID);
+
+        const masterCommits = commits.filter(c => c.branch === masterID);
+        const developCommits = commits.filter(c => c.branch === developID);
+        const lastSourceCommit = sourceCommits[sourceCommits.length - 1];
+        const lastMasterCommit = masterCommits[masterCommits.length - 1];
+        const lastDevelopCommit = developCommits[developCommits.length - 1];
+
+        const masterMergeCommit = {
+            id: shortid.generate(),
+            branch: masterID,
+            gridIndex: Math.max(lastSourceCommit.gridIndex, lastMasterCommit.gridIndex) + 1
+        };
+
+        const developMergeCommit = {
+            id: shortid.generate(),
+            branch: developID,
+            gridIndex: Math.max(lastSourceCommit.gridIndex, lastDevelopCommit.gridIndex) + 1
+        };
+
+        commits.push(masterMergeCommit, developMergeCommit);
+        sourceBranch.merged = true;
+
+        this.setState({ branches, commits });
+
+    };
+
     handleMerge = (sourceBranchID, targetBranchID = developID) => {
         const { branches, commits } = this.state.project;
 
@@ -151,6 +181,7 @@ class App extends Component {
                 <GitFlow
                     project={this.state.project}
                     onMerge={this.handleMerge}
+                    onRelease={this.handleRelease}
                     onCommit={this.handleCommit}
                     onNewFeature={this.handleNewFeature}
                     onNewRelease={this.handleNewRelease}
