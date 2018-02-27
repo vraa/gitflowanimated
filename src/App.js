@@ -99,6 +99,8 @@ class App extends Component {
 
     handleMerge = (sourceBranchID, targetBranchID = developID) => {
         const { branches, commits } = this.state.project;
+
+        const sourceBranch = branches.find(b => b.id === sourceBranchID);
         const sourceCommits = commits.filter(c => c.branch === sourceBranchID);
         const targetCommits = commits.filter(c => c.branch === targetBranchID);
 
@@ -109,10 +111,13 @@ class App extends Component {
             id: shortid.generate(),
             branch: targetBranchID,
             gridIndex: Math.max(lastSourceCommit.gridIndex, lastTargetCommit.gridIndex) + 1
-        }
-
+        };
         commits.push(mergeCommit);
+
+        sourceBranch.merged = true;
+
         this.setState({
+            branches,
             commits
         });
     }
