@@ -110,7 +110,7 @@ class GitFlow extends Component {
             >
                 {this.renderCommitButton(branch)}
                 <ButtonIcon
-                    onClick={this.props.onMerge.bind(this, branch.id)}
+                    onClick={this.props.onMerge.bind(this, branch.id, undefined)}
                 >M</ButtonIcon>
             </BranchActions>
         )
@@ -178,8 +178,8 @@ class GitFlow extends Component {
         const {branches} = project;
         const masterBranch = branches.find(b => b.name === 'master');
         const developBranch = branches.find(b => b.name === 'develop');
-        const releaseBranches = branches.filter(b => !!b.releaseBranch);
-        const featureBranches = branches.filter(b => !!b.featureBranch);
+        const releaseBranches = branches.filter(b => b.releaseBranch);
+        const featureBranches = branches.filter(b => b.featureBranch);
         const noOfBranches = 2 + releaseBranches.length + featureBranches.length;
         return (
             <GitFlowElm>
@@ -188,13 +188,13 @@ class GitFlow extends Component {
                 >
                     {this.renderBranch(masterBranch)}
                     {
-                        releaseBranches.map((branch, idx) => {
+                        releaseBranches.map((branch) => {
                             return this.renderBranch(branch)
                         })
                     }
                     {this.renderBranch(developBranch)}
                     {
-                        featureBranches.map((branch, idx) => {
+                        featureBranches.map((branch) => {
                             return this.renderBranch(branch)
                         })
                     }
