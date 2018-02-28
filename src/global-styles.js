@@ -95,6 +95,6 @@ export const ButtonIcon = styled.button`
 
 export const fallDownAnimation = keyframes`
     to {
-      transform: translate(-50%, 45px);
+      transform: translate(-50%, 0);
     }
 `;

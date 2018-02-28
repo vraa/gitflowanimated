@@ -16,13 +16,15 @@ const seedData = () => {
             id: shortid.generate(),
             branch: masterID,
             gridIndex: 1,
+            parents: null,
         },
         {
             id: shortid.generate(),
             branch: developID,
             gridIndex: 1,
+            parents: null
         }
-    ]
+    ];
     return {
         branches: [
             {
@@ -51,7 +53,7 @@ class App extends Component {
 
     state = {
         project: seedData()
-    }
+    };
 
     handleCommit = (branchID, mergeGridIndex = 0) => {
         let {commits} = this.state.project;
@@ -60,7 +62,8 @@ class App extends Component {
         commits.push({
             id: shortid.generate(),
             branch: branchID,
-            gridIndex: lastCommit.gridIndex + mergeGridIndex + 1
+            gridIndex: lastCommit.gridIndex + mergeGridIndex + 1,
+            parents: [lastCommit.id]
         });
         this.setState({
             commits
@@ -73,7 +76,7 @@ class App extends Component {
         let featureBranchName = 'feature ' + ((featureBranches || []).length + 1);
         let developCommits = commits.filter(c => c.branch === developID);
         const lastDevelopCommit = developCommits[developCommits.length - 1];
-        let featutreOffset = lastDevelopCommit.gridIndex + 1;
+        let featureOffset = lastDevelopCommit.gridIndex + 1;
         let newBranch = {
             id: shortid.generate(),
             name: featureBranchName,
@@ -84,7 +87,8 @@ class App extends Component {
         let newCommit = {
             id: shortid.generate(),
             branch: newBranch.id,
-            gridIndex: featutreOffset
+            gridIndex: featureOffset,
+            parents: [lastDevelopCommit.id]
         };
         commits.push(newCommit);
         branches.push(newBranch);
@@ -111,7 +115,8 @@ class App extends Component {
         let newCommit = {
             id: shortid.generate(),
             branch: newBranch.id,
-            gridIndex: releaseOffset
+            gridIndex: releaseOffset,
+            parents: [lastDevelopCommit.id]
         };
         commits.push(newCommit);
         branches.push(newBranch);
@@ -135,13 +140,15 @@ class App extends Component {
         const masterMergeCommit = {
             id: shortid.generate(),
             branch: masterID,
-            gridIndex: Math.max(lastSourceCommit.gridIndex, lastMasterCommit.gridIndex) + 1
+            gridIndex: Math.max(lastSourceCommit.gridIndex, lastMasterCommit.gridIndex) + 1,
+            parents: [lastMasterCommit.id, lastSourceCommit.id]
         };
 
         const developMergeCommit = {
             id: shortid.generate(),
             branch: developID,
-            gridIndex: Math.max(lastSourceCommit.gridIndex, lastDevelopCommit.gridIndex) + 1
+            gridIndex: Math.max(lastSourceCommit.gridIndex, lastDevelopCommit.gridIndex) + 1,
+            parents: [lastDevelopCommit.id, lastSourceCommit.id]
         };
 
         commits.push(masterMergeCommit, developMergeCommit);
@@ -164,7 +171,8 @@ class App extends Component {
         const mergeCommit = {
             id: shortid.generate(),
             branch: targetBranchID,
-            gridIndex: Math.max(lastSourceCommit.gridIndex, lastTargetCommit.gridIndex) + 1
+            gridIndex: Math.max(lastSourceCommit.gridIndex, lastTargetCommit.gridIndex) + 1,
+            parents: [lastSourceCommit.id, lastTargetCommit.id]
         };
         commits.push(mergeCommit);
 
