@@ -51,11 +51,11 @@ class Connections extends Component {
                             let p1, p2, c1, c2;
                             if (src.left < tgt.left) {
                                 p1 = {
-                                    x: src.left,
+                                    x: src.left + 12.5,
                                     y: src.top + 12.5
                                 };
                                 p2 = {
-                                    x: tgt.left,
+                                    x: tgt.left - 12.5,
                                     y: tgt.top + 12.5
                                 };
                                 c1 = {
@@ -68,11 +68,11 @@ class Connections extends Component {
                                 };
                             } else {
                                 p1 = {
-                                    x: src.left,
+                                    x: src.left - 12.5,
                                     y: src.top + 12.5
                                 };
                                 p2 = {
-                                    x: tgt.left,
+                                    x: tgt.left + 12.5,
                                     y: tgt.top + 12.5
                                 };
                                 c1 = {

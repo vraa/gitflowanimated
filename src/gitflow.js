@@ -15,6 +15,9 @@ const ProjectElm = styled.div`
     grid-template-columns: 1fr;
     grid-template-rows: 90px 1fr;
     margin-top: 20px;
+    background: linear-gradient(135deg, rgba(34,52,122,1) 0%,rgba(23,35,82,1) 100%);
+    border-radius: 5px;
+    box-shadow: 0 4px 10px #9d9d9d;
 `;
 
 const GridColumn = styled.div`
@@ -27,13 +30,12 @@ const GridColumn = styled.div`
 const BranchHeader = styled.div`
     max-width: 90px;
     padding: 5px;
-    background-color: #fafafa;
     text-align: center;
+    background-color: #131d45;
+    border-right: 1px solid #1b295f;
+    color: #f0f0f0;
     z-index: 1;
-
-    &:nth-child(even) {
-        background-color: #f7f7f7;
-    }
+    margin-bottom: 10px;
 `;
 
 const BranchActions = styled.div`
@@ -50,19 +52,22 @@ const BranchName = styled.h4`
     text-transform: uppercase;
     letter-spacing:1.5pt;
     margin-top: 10px;
+    opacity: .6;
 `;
 
 const Commits = styled.ol`
     position: relative;
     min-height: 500px;
+    height: ${p => p.height || '500px'};
     filter: url('#goo');
     z-index: 20;
+    border-right: 1px solid #1b295f;
     &:before {
         position: absolute;
-        display: none;
+        display: block;
         content: '';
         height: 100%;
-        border: 1px dashed ${p => p.color || '#000'};
+        border: 1px dashed #2a3f94;
         left: 50%;
         top: 0;
         transform: translateX(-50%);
@@ -82,7 +87,7 @@ const Commit = styled.li`
     border: 2px solid #333;
     animation: ${fallDownAnimation} cubic-bezier(0.770, 0.000, 0.175, 1.000) 1s;
     animation-fill-mode: forwards;
-    z-index: 20;
+    z-index: 40;
 `;
 
 const ConnectionsContainer = styled.div`
@@ -91,7 +96,7 @@ const ConnectionsContainer = styled.div`
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 10;
+    z-index: 30;
 `;
 
 class GitFlow extends Component {
@@ -246,12 +251,12 @@ class GitFlow extends Component {
             <GridColumn
                 count={noOfBranches}
             >
+                <ConnectionsContainer innerRef={this.cacheConnectionsContainer}/>
                 {
                     branches.map((branch, index) => {
                         return this.renderBranchCommit(branch, index)
                     })
                 }
-                <ConnectionsContainer innerRef={this.cacheConnectionsContainer}/>
             </GridColumn>
         )
     };
@@ -263,6 +268,7 @@ class GitFlow extends Component {
             <Commits
                 color={branch.color}
                 key={'branch-' + branch.id}
+                height={(branchCommits.length * 45) + 'px'}
             >
                 {
                     branchCommits.map((commit) => {
