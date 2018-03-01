@@ -248,7 +248,11 @@ class GitFlow extends Component {
         return (
             <BranchHeader>
                 <BranchName>{branch.name}</BranchName>
-                <BranchActions/>
+                <BranchActions count={1}>
+                    <ButtonIcon
+                        onClick={this.props.onNewHotFix}
+                    >H</ButtonIcon>
+                </BranchActions>
             </BranchHeader>
         )
     };
@@ -259,6 +263,7 @@ class GitFlow extends Component {
             developBranch,
             releaseBranches,
             featureBranches,
+            hotFixBranches,
             noOfBranches
         } = param;
         return (
@@ -267,6 +272,9 @@ class GitFlow extends Component {
             >
                 {
                     this.renderMasterBranchHeader(masterBranch)
+                }
+                {
+                    hotFixBranches.map(b => this.renderReleaseBranchHeader(b))
                 }
                 {
                     releaseBranches.map(b => this.renderReleaseBranchHeader(b))
@@ -287,9 +295,10 @@ class GitFlow extends Component {
             developBranch,
             releaseBranches,
             featureBranches,
+            hotFixBranches,
             noOfBranches
         } = param;
-        let branches = [masterBranch, ...releaseBranches, developBranch, ...featureBranches];
+        let branches = [masterBranch, ...hotFixBranches, ...releaseBranches, developBranch, ...featureBranches];
         return (
             <GridColumn
                 count={noOfBranches}
@@ -337,12 +346,14 @@ class GitFlow extends Component {
         const {project} = this.props;
         const {branches} = project;
         const masterBranch = branches.find(b => b.name === 'master');
+        const hotFixBranches = branches.filter(b => b.hotFixBranch);
         const developBranch = branches.find(b => b.name === 'develop');
         const releaseBranches = branches.filter(b => b.releaseBranch);
         const featureBranches = branches.filter(b => b.featureBranch);
-        const noOfBranches = 2 + releaseBranches.length + featureBranches.length;
+        const noOfBranches = branches.length;
         const param = {
             masterBranch,
+            hotFixBranches,
             developBranch,
             featureBranches,
             releaseBranches,

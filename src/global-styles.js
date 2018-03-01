@@ -91,6 +91,13 @@ export const ButtonIcon = styled.button`
   border: 1px solid #2196F3;
   color: #2196F3;
   border-radius: 50%;
+  cursor: pointer;
+  transition: all .2s;
+  &:hover {
+    background-color: #2196F3;
+    color: #fff;
+    transform: scale(1.1);
+  }
 `;
 
 export const fallDownAnimation = keyframes`
