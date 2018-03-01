@@ -53,12 +53,11 @@ injectGlobal`
       }
 
 
-    body {
+    #root {
         background-color: #fff;
         color: #3d3d3d;
         font-family: 'Open Sans', sans-serif;
         font-size: 1em;
-
     }
 `;
 
@@ -89,6 +88,9 @@ export const Button = styled.button`
 `;
 
 export const ButtonIcon = styled.button`
+    display: grid;
+    align-items: center;
+    justify-items: center;
   width: 24px;
   height: 24px;
   background: transparent;
