@@ -6,7 +6,6 @@ import GoeyFilter from "./goey-filter";
 import Connections from "./connections";
 
 const GitFlowElm = styled.div`
-    max-width: 600px;
     margin: 0 auto;
 `;
 
@@ -25,6 +24,7 @@ const ProjectElm = styled.div`
     background: linear-gradient(135deg, rgba(34,52,122,1) 0%,rgba(23,35,82,1) 100%);
     border-radius: 5px;
     box-shadow: 0 4px 10px #9d9d9d;
+    overflow: auto;
 `;
 
 const GridColumn = styled.div`
