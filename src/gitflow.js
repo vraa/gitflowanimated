@@ -1,12 +1,13 @@
 import React, {Component} from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
-import {ButtonIcon, fallDownAnimation} from "./global-styles";
-import {release} from "os";
+import {ButtonIcon, fallDownAnimation, fadeIn} from "./global-styles";
 import GoeyFilter from "./goey-filter";
 import Connections from "./connections";
 
 const GitFlowElm = styled.div`
+    max-width: 600px;
+    margin: 0 auto;
 `;
 
 const ProjectElm = styled.div`
@@ -36,6 +37,7 @@ const BranchHeader = styled.div`
     color: #f0f0f0;
     z-index: 1;
     margin-bottom: 10px;
+    animation: ${fadeIn} .5s ease-in;
 `;
 
 const BranchActions = styled.div`
@@ -57,22 +59,12 @@ const BranchName = styled.h4`
 
 const Commits = styled.ol`
     position: relative;
-    min-height: 500px;
+    min-height: 800px;
     height: ${p => p.height || '500px'};
     filter: url('#goo');
-    z-index: 20;
+    z-index: 40;
     border-right: 1px solid #1b295f;
-    &:before {
-        position: absolute;
-        display: block;
-        content: '';
-        height: 100%;
-        border: 1px dashed #2a3f94;
-        left: 50%;
-        top: 0;
-        transform: translateX(-50%);
-        z-index: 0;
-    }
+    transition: opacity .5s;
 `;
 
 const Commit = styled.li`
@@ -84,10 +76,17 @@ const Commit = styled.li`
     border-radius: 50%;
     transform: translate(-50%,-45px);
     background-color: ${p => p.color || '#9d9d9d'};
-    border: 2px solid #333;
+    box-shadow: 0 0 20px #f0f0f0;
+    border: 1px solid #fff;
     animation: ${fallDownAnimation} cubic-bezier(0.770, 0.000, 0.175, 1.000) 1s;
     animation-fill-mode: forwards;
     z-index: 40;
+    transition: all .2s;
+    &.merged {
+        background-color: #fff;
+        box-shadow: none;
+        opacity: .5;
+    }
 `;
 
 const ConnectionsContainer = styled.div`
@@ -133,6 +132,8 @@ class GitFlow extends Component {
             const tgtPosition = this.commitPositions[commit.id];
             return (parents || []).map(p => {
                 return {
+                    srcCommitID: p,
+                    tgtCommitID: commit.id,
                     src: this.commitPositions[p],
                     tgt: tgtPosition
                 }
@@ -142,13 +143,31 @@ class GitFlow extends Component {
         ReactDOM.render(<Connections paths={paths}/>, this.connectionsContainer);
     };
 
+
+    deleteBranch = (branchID) => {
+        const {commits} = this.props.project;
+        const commitsToDelete = commits.filter(c => c.branch === branchID).map(c => c.id);
+        commitsToDelete.forEach(c => {
+            delete this.commitPositions[c.id];
+        });
+        this.props.onDeleteBranch(branchID);
+    };
+
     renderCommitButton = (branch) => {
         return (
             <ButtonIcon
                 onClick={this.props.onCommit.bind(this, branch.id, 0)}
-            >+</ButtonIcon>
+            >C</ButtonIcon>
         )
     };
+
+    renderDeleteButton = (branch) => {
+        return (
+            <BranchActions count={1}>
+                <ButtonIcon onClick={this.deleteBranch.bind(this, branch.id)}>✕</ButtonIcon>
+            </BranchActions>
+        )
+    }
 
     renderDevelopBranchHeader = (branch) => {
         return (
@@ -166,37 +185,52 @@ class GitFlow extends Component {
     };
 
     renderFeatureBranchHeader = (branch) => {
+        let actionsElm = null;
+        if (branch.merged) {
+            actionsElm = this.renderDeleteButton(branch);
+        } else {
+            actionsElm = (
+                <BranchActions
+                    count={2}
+                >
+                    <ButtonIcon
+                        onClick={this.props.onMerge.bind(this, branch.id, undefined)}
+                    >M</ButtonIcon>
+                    {this.renderCommitButton(branch)}
+                </BranchActions>
+            );
+        }
         return (
             <BranchHeader
                 key={branch.id}
             >
                 <BranchName>{branch.name}</BranchName>
-                <BranchActions
-                    count={2}
-                >
-                    {this.renderCommitButton(branch)}
-                    <ButtonIcon
-                        onClick={this.props.onMerge.bind(this, branch.id, undefined)}
-                    >M</ButtonIcon>
-                </BranchActions>
+                {actionsElm}
             </BranchHeader>
         )
     };
 
     renderReleaseBranchHeader = (branch) => {
-        return (
-            <BranchHeader
-                key={branch.id}
-            >
-                <BranchName>{branch.name}</BranchName>
-                <BranchActions
+        let actionsElm = null;
+        if (branch.merged) {
+            actionsElm = this.renderDeleteButton(branch);
+        } else {
+            actionsElm = (<BranchActions
                     count={2}
                 >
                     {this.renderCommitButton(branch)}
                     <ButtonIcon
                         onClick={this.props.onRelease.bind(this, branch.id, undefined)}
-                    >R</ButtonIcon>
+                    >M</ButtonIcon>
                 </BranchActions>
+            );
+        }
+        return (
+            <BranchHeader
+                key={branch.id}
+            >
+                <BranchName>{branch.name}</BranchName>
+                {actionsElm}
             </BranchHeader>
         )
     };
@@ -266,6 +300,7 @@ class GitFlow extends Component {
         const branchCommits = commits.filter(c => c.branch === branch.id);
         return (
             <Commits
+                className={branch.merged ? 'merged' : ''}
                 color={branch.color}
                 key={'branch-' + branch.id}
                 height={(branchCommits.length * 45) + 'px'}
@@ -273,6 +308,7 @@ class GitFlow extends Component {
                 {
                     branchCommits.map((commit) => {
                         return <Commit
+                            className={branch.merged ? 'merged' : ''}
                             innerRef={this.storeCommitPosition.bind(this, commit.id, branchIndex)}
                             key={'commit-' + commit.id}
                             color={branch.color}

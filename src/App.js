@@ -31,7 +31,7 @@ const seedData = () => {
                 name: MASTER,
                 id: masterID,
                 canCommit: false,
-                color: '#BA68C8',
+                color: '#E040FB',
             },
             {
                 name: DEVELOP,
@@ -72,7 +72,7 @@ class App extends Component {
 
     handleNewFeature = () => {
         let {branches, commits} = this.state.project;
-        let featureBranches = branches.filter(b => !!b.featureBranch);
+        let featureBranches = branches.filter(b => b.featureBranch);
         let featureBranchName = 'feature ' + ((featureBranches || []).length + 1);
         let developCommits = commits.filter(c => c.branch === developID);
         const lastDevelopCommit = developCommits[developCommits.length - 1];
@@ -93,8 +93,10 @@ class App extends Component {
         commits.push(newCommit);
         branches.push(newBranch);
         this.setState({
-            branches,
-            commits
+            project: {
+                branches,
+                commits
+            }
         });
     };
 
@@ -110,7 +112,7 @@ class App extends Component {
             name: releaseBranchName,
             releaseBranch: true,
             canCommit: true,
-            color: '#81C784'
+            color: '#B2FF59'
         };
         let newCommit = {
             id: shortid.generate(),
@@ -121,13 +123,15 @@ class App extends Component {
         commits.push(newCommit);
         branches.push(newBranch);
         this.setState({
-            branches,
-            commits
+            project: {
+                branches,
+                commits
+            }
         });
     };
 
     handleRelease = (sourceBranchID) => {
-        const {branches, commits} = this.state.project;
+        let {branches, commits} = this.state.project;
         const sourceBranch = branches.find(b => b.id === sourceBranchID);
         const sourceCommits = commits.filter(c => c.branch === sourceBranchID);
 
@@ -154,12 +158,17 @@ class App extends Component {
         commits.push(masterMergeCommit, developMergeCommit);
         sourceBranch.merged = true;
 
-        this.setState({branches, commits});
+        this.setState({
+            project: {
+                branches,
+                commits
+            }
+        });
 
     };
 
     handleMerge = (sourceBranchID, targetBranchID = developID) => {
-        const {branches, commits} = this.state.project;
+        let {branches, commits} = this.state.project;
 
         const sourceBranch = branches.find(b => b.id === sourceBranchID);
         const sourceCommits = commits.filter(c => c.branch === sourceBranchID);
@@ -179,10 +188,34 @@ class App extends Component {
         sourceBranch.merged = true;
 
         this.setState({
-            branches,
-            commits
+            project: {
+                branches,
+                commits
+            }
         });
-    }
+    };
+
+    handleDeleteBranch = (branchID) => {
+        let {branches, commits} = this.state.project;
+
+        let commitsToDelete = commits.filter(c => c.branch === branchID);
+        let lastCommit = commitsToDelete[commitsToDelete.length - 1];
+        commits = commits.map(commit => {
+            if (commit.parents) {
+                commit.parents = commit.parents.filter(pID => pID !== lastCommit.id);
+            }
+            return commit;
+
+        });
+        branches = branches.filter(b => b.id !== branchID);
+        commits = commits.filter(c => c.branch !== branchID);
+        this.setState({
+            project: {
+                branches,
+                commits
+            }
+        });
+    };
 
     render() {
         return (
@@ -194,6 +227,7 @@ class App extends Component {
                     onCommit={this.handleCommit}
                     onNewFeature={this.handleNewFeature}
                     onNewRelease={this.handleNewRelease}
+                    onDeleteBranch={this.handleDeleteBranch}
                 />
             </AppElm>
         );

@@ -29,6 +29,8 @@ const AnimatedPath = styled.path`
 `;
 
 
+const LINE_COLOR = '#fff';
+
 class Connections extends Component {
 
     render() {
@@ -44,7 +46,7 @@ class Connections extends Component {
                                 key={'p' + src.left + '-' + src.top + '-' + idx}
                                 x1={src.left} y1={src.top + 25} x2={tgt.left} y2={tgt.top}
                                 fill={'none'}
-                                stroke={'#3d3d3d'}
+                                stroke={LINE_COLOR}
                                 strokeWidth={2}
                             />
                         } else {
@@ -90,7 +92,7 @@ class Connections extends Component {
                                 key={'p' + src.left + '-' + src.top + '-' + idx}
                                 d={pathStr}
                                 fill={'none'}
-                                stroke={'#3d3d3d'}
+                                stroke={LINE_COLOR}
                                 strokeWidth={2}
                             />
                         }
