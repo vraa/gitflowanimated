@@ -1,13 +1,19 @@
 import React, {Component} from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
-import {ButtonIcon, fallDownAnimation, fadeIn} from "./global-styles";
+import {Button, ButtonIcon, fallDownAnimation, fadeIn} from "./global-styles";
 import GoeyFilter from "./goey-filter";
 import Connections from "./connections";
 
 const GitFlowElm = styled.div`
     max-width: 600px;
     margin: 0 auto;
+`;
+
+const GlobalActions = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-column-gap: 10px;
 `;
 
 const ProjectElm = styled.div`
@@ -361,6 +367,11 @@ class GitFlow extends Component {
         };
         return (
             <GitFlowElm>
+                <GlobalActions>
+                    <Button onClick={this.props.onNewHotFix}>New Hot Fix</Button>
+                    <Button onClick={this.props.onNewRelease}>New Release</Button>
+                    <Button onClick={this.props.onNewFeature}>New Feature</Button>
+                </GlobalActions>
                 <ProjectElm>
                     {this.renderBranchHeaders(param)}
                     {this.renderBranchCommits(param)}

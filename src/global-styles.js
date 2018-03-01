@@ -81,6 +81,11 @@ export const Button = styled.button`
   color: #2196F3;
   border-radius: 20px;
   padding: 10px;
+  cursor: pointer;
+  transition: all .2s;
+  &:hover {
+    background-color: #E3F2FD;
+  }
 `;
 
 export const ButtonIcon = styled.button`
