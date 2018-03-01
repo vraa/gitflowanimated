@@ -69,6 +69,9 @@ const Commits = styled.ol`
 
 const Commit = styled.li`
     position: absolute;
+    display: grid;
+    align-items: center;
+    justify-items: center;
     top: ${p => (p.top * 45) + 'px'};
     left: 50%;
     width: 25px;
@@ -89,6 +92,11 @@ const Commit = styled.li`
     }
 `;
 
+const Tag = styled.p`
+    color: #fff;
+    font-size: .7rem;
+    letter-spacing: 1pt;
+`;
 const ConnectionsContainer = styled.div`
     position: absolute;
     top: 0;
@@ -97,6 +105,7 @@ const ConnectionsContainer = styled.div`
     height: 100%;
     z-index: 30;
 `;
+
 
 class GitFlow extends Component {
 
@@ -298,6 +307,7 @@ class GitFlow extends Component {
     renderBranchCommit = (branch, branchIndex) => {
         const {commits} = this.props.project;
         const branchCommits = commits.filter(c => c.branch === branch.id);
+        let isMasterBranch = branch.name === 'master';
         return (
             <Commits
                 className={branch.merged ? 'merged' : ''}
@@ -306,14 +316,16 @@ class GitFlow extends Component {
                 height={(branchCommits.length * 45) + 'px'}
             >
                 {
-                    branchCommits.map((commit) => {
+                    branchCommits.map((commit, idx) => {
                         return <Commit
                             className={branch.merged ? 'merged' : ''}
                             innerRef={this.storeCommitPosition.bind(this, commit.id, branchIndex)}
                             key={'commit-' + commit.id}
                             color={branch.color}
                             top={commit.gridIndex - 1}
-                        />
+                        >
+                            {isMasterBranch ? <Tag>{'v' + idx}</Tag> : null}
+                        </Commit>
                     })
                 }
             </Commits>
