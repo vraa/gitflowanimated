@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/gitflowanimated.iml" filepath="$PROJECT_DIR$/.idea/gitflowanimated.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gitflowanimated.iml" filepath="$PROJECT_DIR$/gitflowanimated.iml" />
     </modules>
   </component>
 </project>
